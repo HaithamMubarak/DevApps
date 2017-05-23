@@ -8,7 +8,9 @@ You can define your arguments format using ArgumentPattern class, with either pr
 
 For property argument you can restrict choices for the value and make the argument optional with some default value, but boolean argument is always optilnal with default boolean value of 'false'
 
-# Sample Code
+## Samples
+
+1- Create your argument pattern:
 
 ``` java
 ArgumentPattern pattern = new ArgumentPattern("command");//command is the process name, parsed line should start with 'command'
@@ -22,6 +24,19 @@ pattern.booleanArgument("flag")                                          //defin
 .propertyArgument(new String[]{"p","property-alias"})                    //defines new property argument p with alias property-alias
 .propertyArgument("choice","default-value",new String[]{"c1","c2","c3"});//defines property argument with restrcited choices [c1|c2|c3]
                                                                          //default value
-    
+ ```
+2- Parse command line parameters : 
  
+ ``` java
 
+//Valid lines
+pattern.parse("command --flag -p 10"); // or
+pattern.parse("--flag -p 10");
+pattern.parse("command --flag -p='10'");
+
+//Invalid line
+pattern.parse("-p 10 -choice c4");//throw exception, since c4 value is not in  [c1|c2|c3]
+
+ ```
+ 
+ 
