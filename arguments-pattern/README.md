@@ -39,4 +39,21 @@ pattern.parse("-p 10 -choice c4");//throw exception, since c4 value is not in  [
 
  ```
  
+ 3- Get parameters value:
+  ``` java
+  boolean flag = pattern.getBoolean("flag");
+  
+  // p and alias have the same value, they have the same reference.
+  String p = pattern.getString("p");
+  String alias = pattern.getString("property-alias");
+  ```
+    
+  ## Future Enhancements
+  
+  1- Adding parameters help support.
+  2- Adding dependent parameters support.
+  
+  Thank You!
+  
+ 
  
