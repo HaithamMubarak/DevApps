@@ -34,8 +34,9 @@ pattern.parse("command --flag -p 10"); // or
 pattern.parse("--flag -p 10");
 pattern.parse("command --flag -p='10'");
 
-//Invalid line
-pattern.parse("-p 10 -choice c4");//throw exception, since c4 value is not in  [c1|c2|c3]
+//Invalid lines
+pattern.parse("--flag");// throws exception, property 'p' is mandatory since it has no default value
+pattern.parse("-p 10 -choice c4");//throws exception, since c4 value is not in  [c1|c2|c3]
 
  ```
  
