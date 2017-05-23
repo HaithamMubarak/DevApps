@@ -50,8 +50,10 @@ pattern.parse("-p 10 -choice c4");//throw exception, since c4 value is not in  [
     
   ## Future Enhancements
   
-  1- Adding parameters help support.
-  2- Adding dependent parameters support.
+  <ul>
+  <li>Adding parameters help support</li>
+  <li>Adding dependent parameters support<li>
+  </ul>
   
   Thank You!
   
