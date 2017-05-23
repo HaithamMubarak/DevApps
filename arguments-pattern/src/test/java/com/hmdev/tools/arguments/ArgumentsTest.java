@@ -112,7 +112,21 @@ public class ArgumentsTest {
 	
 	@Test
 	public void invalidChoiceTest() throws ArgumentPatternException{
-		
+
+		String exMessage = null;
+		Class<? extends ArgumentPatternException> exClass = null;
+		try{
+			ArgumentPattern pattern = new ArgumentPattern("command");
+			pattern.booleanArgument("enable-something")
+					.propertyArgument("assign-somevalue",new String[] {"a","b"})
+					.parse("command -assign-somevalue c");
+		}catch(ArgumentPatternException e){
+			exMessage = e.getMessage();
+			exClass = e.getClass();
+		}
+
+		Assert.assertTrue(exClass == InvalidFormatException.class && exMessage.contains("is not valid for argument"),"Expected to have wrong choice value for assign-somevalue (expected exception: com.hmdev.tools.arguments.exception.InvalidFormatException)");
+
 	}
 	
 }
