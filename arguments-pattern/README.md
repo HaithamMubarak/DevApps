@@ -53,7 +53,7 @@ pattern.parse("-p 10 -choice c4");//throws exception, since c4 value is not in  
   
   <ul>
   <li>Adding parameters help support</li>
-  <li>Adding dependent parameters support<li>
+  <li>Adding dependent parameters support</li>
   </ul>
   
   Thank You!
