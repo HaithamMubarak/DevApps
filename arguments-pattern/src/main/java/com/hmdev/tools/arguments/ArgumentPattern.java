@@ -8,6 +8,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import com.hmdev.tools.arguments.exception.ArgumentExistsException;
+import com.hmdev.tools.arguments.exception.ArgumentPatternException;
+import com.hmdev.tools.arguments.exception.InvalidFormatException;
+import com.hmdev.tools.arguments.exception.ArgumentUndefinedException;
+
 /**
  * 
  * @author Haitham Mubarak
@@ -29,57 +34,49 @@ public class ArgumentPattern {
 		this.parsedArguments = new ArrayList<ArgumentDefinition>();
 	}
 
-	public ArgumentPattern propertyArgument(String key) throws Exception {
+	public ArgumentPattern propertyArgument(String key) throws ArgumentPatternException {
 		return argument(new String[]{key}, null, null, false,false);
 	}
-	public ArgumentPattern propertyArgument(String[] keys) throws Exception {
+	public ArgumentPattern propertyArgument(String[] keys) throws ArgumentPatternException {
 		return argument(keys, null, null, false,false);
 	}
 	
-	public ArgumentPattern propertyArgument(String key,boolean optional) throws Exception {
-		return argument(new String[]{key}, null, null, optional,false);
-	}	
-	public ArgumentPattern propertyArgument(String[] keys,boolean optional) throws Exception {
-		return argument(keys, null, null, optional,false);
-	}	
-	
-	public ArgumentPattern propertyArgument(String key,String defaultValue) throws Exception {
+	public ArgumentPattern propertyArgument(String key,String defaultValue) throws ArgumentPatternException {
 		return argument(new String[]{key}, null, defaultValue, true,false);
 	}	
 	
-	public ArgumentPattern propertyArgument(String[] keys,String defaultValue) throws Exception {
+	public ArgumentPattern propertyArgument(String[] keys,String defaultValue) throws ArgumentPatternException {
 		return argument(keys, null, defaultValue, true,false);
 	}	
 	
-	public ArgumentPattern propertyArgument(String key,String defaultValue,String[] choices) throws Exception {
-		return argument(new String[]{key}, choices, defaultValue, true,false);
+	public ArgumentPattern propertyArgument(String key,String[] choices) throws ArgumentPatternException {
+		return argument(new String[]{key}, choices, null, true,false);
+	}	
+	public ArgumentPattern propertyArgument(String[] keys,String[] choices) throws ArgumentPatternException {
+		return argument(keys, choices, null, true,false);
 	}
 	
-	public ArgumentPattern propertyArgument(String[] keys,String defaultValue,String[] choices) throws Exception {
+	public ArgumentPattern propertyArgument(String key,String defaultValue,String[] choices) throws ArgumentPatternException {
+		return argument(new String[]{key}, choices, defaultValue, true,false);
+	}	
+	public ArgumentPattern propertyArgument(String[] keys,String defaultValue,String[] choices) throws ArgumentPatternException {
 		return argument(keys, choices, defaultValue, true,false);
 	}
-
-	public ArgumentPattern propertyArgument(String key,boolean optional,String[] choices) throws Exception {
-		return argument(new String[]{key}, choices, null, optional,false);
-	}	
-	public ArgumentPattern propertyArgument(String[] keys,boolean optional,String[] choices) throws Exception {
-		return argument(keys, choices, null, optional,false);
-	}
 	
-	public ArgumentPattern booleanArgument(String key) throws Exception {
+	public ArgumentPattern booleanArgument(String key) throws ArgumentPatternException {
 		return argument(new String[]{key}, null, false+"", true,true);
 	}
 	
-	public ArgumentPattern booleanArgument(String[] keys) throws Exception {
+	public ArgumentPattern booleanArgument(String[] keys) throws ArgumentPatternException {
 		return argument(keys, null, false+"", true,true);
 	}
 
-	public ArgumentPattern parse(String argumentsLine) throws Exception {
+	public ArgumentPattern parse(String argumentsLine) throws ArgumentPatternException {
 
 		List<ArgumentDefinition> arguments = new ArrayList<ArgumentDefinition>();
 
 		if (argumentsLine == null ) {
-			throw new Exception("Unable to parse null string");
+			throw new InvalidFormatException("Unable to parse null string");
 		}
 
 		argumentsLine = argumentsLine.trim() ;
@@ -111,7 +108,7 @@ public class ArgumentPattern {
 					&& stack.empty() && (i == argumentsLine.length()-1 || argumentsLine.charAt(i+1) == '-')) {
 
 				if (!stack.empty()) {
-					throw new Exception("Unbalanced quotations at "
+					throw new InvalidFormatException("Unbalanced quotations at "
 							+ argumentsLine.substring(i - 1));
 				}
 				arguments.add(tokenToArgument(token.toString()));
@@ -139,13 +136,13 @@ public class ArgumentPattern {
 
 	}
 
-	public boolean getBoolean(String argName) throws Exception {
+	public boolean getBoolean(String argName) throws ArgumentPatternException {
 		
 		ArgumentDescriptor argumentDescriptor = this.argumentsDescriptionMap
 				.get(argName);
 		
 		if (argumentDescriptor == null) {
-			throw new Exception("Unknown boolean argument " + argName);
+			throw new ArgumentUndefinedException("Unknown boolean argument " + argName);
 		}
 		
 		for(String argumentName : argumentNamesGroupMap.get(argName)){
@@ -155,7 +152,7 @@ public class ArgumentPattern {
 					if (inputArgument instanceof BooleanArgument) {
 						return true;
 					} else {
-						throw new Exception("argument " + argumentName+ " is not boolean argument.");
+						throw new ArgumentUndefinedException("argument " + argumentName+ " is not boolean argument.");
 					}
 
 				}
@@ -165,13 +162,13 @@ public class ArgumentPattern {
 		return Boolean.parseBoolean(argumentDescriptor.defaultValue);
 	}
 
-	public String getString(String argName) throws Exception {
+	public String getString(String argName) throws ArgumentPatternException {
 				
 		ArgumentDescriptor argumentDescriptor = this.argumentsDescriptionMap
 				.get(argName);
 		
 		if (argumentDescriptor == null) {
-			throw new Exception("Unknown string property argument " + argName);
+			throw new ArgumentUndefinedException("Unknown string property argument " + argName);
 		}
 		
 		for(String argumentName : argumentNamesGroupMap.get(argName)){
@@ -181,7 +178,7 @@ public class ArgumentPattern {
 					if (inputArgument instanceof PropertyArgument) {
 						return ((PropertyArgument) inputArgument).value;
 					} else {
-						throw new Exception("argument " + argumentName
+						throw new ArgumentUndefinedException("argument " + argumentName
 								+ " is not string property argument.");
 					}
 				}
@@ -192,13 +189,13 @@ public class ArgumentPattern {
 	}
 
 	private ArgumentPattern argument(String[] possibleArgumentKeys, String[] choices,
-			String defaultValue, boolean optional,boolean isBoolean) throws Exception {
+			String defaultValue, boolean optional,boolean isBoolean) throws ArgumentPatternException {
 		
 		ArgumentDescriptor argumentDescriptor = new ArgumentDescriptor(choices,defaultValue, optional,isBoolean);
 		
 		for(String name : possibleArgumentKeys){
 			if (this.argumentsDescriptionMap.containsKey(name)) {
-				throw new Exception("Argument '" + name + "' is already defined");
+				throw new ArgumentExistsException(name);
 			}
 			this.argumentsDescriptionMap.put(name, argumentDescriptor);
 			argumentNamesGroupMap.put(name,possibleArgumentKeys);
@@ -206,7 +203,7 @@ public class ArgumentPattern {
 		return this;
 	}
 
-	private ArgumentDefinition tokenToArgument(String token) throws Exception {
+	private ArgumentDefinition tokenToArgument(String token) throws InvalidFormatException {
 		token = token.trim();
 
 		if (token.startsWith("--")) {
@@ -238,11 +235,11 @@ public class ArgumentPattern {
 
 			return new PropertyArgument(key, value);
 		} else {
-			throw new Exception("Invalid token at "+token);
+			throw new InvalidFormatException("Invalid token at "+token);
 		}
 	}
 
-	public void validate(List<ArgumentDefinition> argumentsList) throws Exception {
+	public void validate(List<ArgumentDefinition> argumentsList) throws ArgumentPatternException {
 
 		Set<String> foundArguments = new HashSet<String>();
 		for (ArgumentDefinition argument : argumentsList) {
@@ -251,14 +248,14 @@ public class ArgumentPattern {
 			
 			//Check if the argument has description
 			if (argDescriptor == null) {
-				throw new Exception("Undefined argument " + argument);
+				throw new ArgumentUndefinedException("Undefined argument " + argument);
 			}
 			
 			//check if the argument matches its description
 			if(argDescriptor.isBoolean && !(argument instanceof BooleanArgument)){
-				throw new Exception("Argument "+argument.getName()+" format should be as boolean (should start with '--')");
+				throw new InvalidFormatException("Argument "+argument.getName()+" format should be as boolean (should start with '--')");
 			}else if (!argDescriptor.isBoolean && !(argument instanceof PropertyArgument)){
-				throw new Exception("Argument "+argument.getName()+" format should be as property (should start with '-')");
+				throw new InvalidFormatException("Argument "+argument.getName()+" format should be as property (should start with '-')");
 			}
 			
 			foundArguments.add(argument.getName());
@@ -293,7 +290,7 @@ public class ArgumentPattern {
 				}
 
 				if (!valid) {
-					throw new Exception("Value '"+value+"' is not valid for argument "
+					throw new InvalidFormatException("Value '"+value+"' is not valid for argument "
 							+ argument.getName() + ", expected " + choicesExpected);
 				}
 			}
@@ -320,7 +317,7 @@ public class ArgumentPattern {
 			}
 			
 			if(!found){
-				throw new Exception("Argument " + argumentName+ " is mandatory. Try to define it by "+currentKeys);
+				throw new ArgumentUndefinedException("Argument " + argumentName+ " is mandatory. Try to define it by "+currentKeys);
 			}
 			
 			checkedKeys.addAll(currentKeys);

@@ -3,10 +3,14 @@ package com.hmdev.tools.arguments;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import com.hmdev.tools.arguments.exception.ArgumentPatternException;
+import com.hmdev.tools.arguments.exception.ArgumentUndefinedException;
+import com.hmdev.tools.arguments.exception.InvalidFormatException;
+
 public class ArgumentsTest {
 	
 	@Test
-	public void MultiPropertiesTest() throws Exception{
+	public void MultiPropertiesTest() throws ArgumentPatternException{
 
 		ArgumentPattern pattern = new ArgumentPattern("command");
 		pattern.booleanArgument("b")
@@ -21,7 +25,9 @@ public class ArgumentsTest {
 		Assert.assertEquals(pattern.getString("choice"), "default-value");
 		Assert.assertEquals(pattern.getBoolean("b-b"), false);
 		
-		pattern.parse("command -choice c1 --b-b");
+		pattern.parse("command -choice c1 -p 10 20 --b-b");
+		System.out.println(pattern.getString("p"));
+		
 		Assert.assertEquals(pattern.getString("choice"), "c1");
 		Assert.assertEquals(pattern.getBoolean("b-b"), true);
 		Assert.assertEquals(pattern.getBoolean("b"), false);
@@ -33,7 +39,7 @@ public class ArgumentsTest {
 	}
 	
 	@Test
-	public void defaultPropertyValueTest() throws Exception{
+	public void defaultPropertyValueTest() throws ArgumentPatternException{
 
 		ArgumentPattern pattern = new ArgumentPattern("command");
 		pattern.booleanArgument("enable-something")
@@ -46,7 +52,7 @@ public class ArgumentsTest {
 	}
 	
 	@Test
-	public void valueAssignTest() throws Exception{
+	public void valueAssignTest() throws ArgumentPatternException{
 
 		ArgumentPattern pattern = new ArgumentPattern("command");
 		pattern.booleanArgument("enable-something")
@@ -67,11 +73,11 @@ public class ArgumentsTest {
 	}
 	
 	@Test
-	public void choiceTest() throws Exception{
+	public void choiceTest() throws ArgumentPatternException{
 
 		ArgumentPattern pattern = new ArgumentPattern("command");
 		pattern.booleanArgument("enable-something")
-				.propertyArgument("assign-somevalue", true,new String[] {"a","b"})
+				.propertyArgument("assign-somevalue",new String[] {"a","b"})
 				.parse("command -assign-somevalue a");
 		
 		String value = pattern.getString("assign-somevalue");
@@ -80,20 +86,33 @@ public class ArgumentsTest {
 	}
 	
 	@Test
-	public void invalidChoiceTest() throws Exception{
+	public void optionalVsMandatoryParametersTest() throws ArgumentPatternException{
 
-		String exMessage = null;
+		ArgumentPattern pattern = new ArgumentPattern("command");
+		pattern.propertyArgument("mandatory").propertyArgument("optional","default-value");
+		
+		pattern.parse("command -mandatory 10");
+		Assert.assertEquals(pattern.getString("optional"), "default-value");
+		Assert.assertEquals(pattern.getString("mandatory"), "10");
+		
+		pattern.parse("command -mandatory 10 -optional new-value");
+		Assert.assertEquals(pattern.getString("optional"), "new-value");
+		Assert.assertEquals(pattern.getString("mandatory"), "10");
+		
+		Class<?> exceptionClass = null;
+		
 		try{
-			ArgumentPattern pattern = new ArgumentPattern("command");
-			pattern.booleanArgument("enable-something")
-					.propertyArgument("assign-somevalue", true,new String[] {"a","b"})
-					.parse("command -assign-somevalue c");
-		}catch(Throwable e){
-			exMessage = e.getMessage();
+			pattern.parse("command -optional new-value");
+		}catch(ArgumentPatternException ex){
+			exceptionClass = ex.getClass();
 		}
 		
-		Assert.assertTrue(exMessage!=null && exMessage.contains("is not valid for argument"),"Expected to have wrong choice value for assign-somevalue");
-
+		Assert.assertEquals(exceptionClass,ArgumentUndefinedException.class,"expected exception: com.hmdev.tools.arguments.exception.ArgumentUndefinedException");
+	}
+	
+	@Test
+	public void invalidChoiceTest() throws ArgumentPatternException{
+		
 	}
 	
 }
