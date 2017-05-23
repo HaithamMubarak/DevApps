@@ -1,6 +1,5 @@
 # Arguments Pattern
-Java api used to parse command line arguments
-
+Simple Java api used to parse command line arguments. You can easy define your parameters and get the values as string or boolean.
 
 # Arguments Defintions
 
