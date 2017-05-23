@@ -1,5 +1,5 @@
 # Arguments Pattern
-Java api used to parase command line arguments
+Java api used to parse command line arguments
 
 
 # Arguments Defintions
