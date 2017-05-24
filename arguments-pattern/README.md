@@ -24,7 +24,7 @@ pattern.booleanArgument("flag")                                          //defin
 .propertyArgument("choice","default-value",new String[]{"c1","c2","c3"});//defines property argument with restrcited choices [c1|c2|c3]
                                                                          //default value
  ```
-2- Parse command line parameters : 
+2- Parse command line arguments : 
  
  ``` java
 
