@@ -1,3 +1,4 @@
+
 package com.hmdev.tools.arguments;
 
 import org.testng.Assert;
@@ -129,4 +130,13 @@ public class ArgumentsTest {
 
 	}
 	
+	@Test
+	public void quotedValueTest() throws ArgumentPatternException{
+
+		ArgumentPattern pattern = new ArgumentPattern("execute").propertyArgument("command");
+		pattern.parse("execute -command 'echo -b \"some test\"'");
+		
+		Assert.assertEquals(pattern.getString("command"), "echo -b \"some test\"");
+		
+	}
 }
