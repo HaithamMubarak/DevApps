@@ -11,7 +11,7 @@ import com.hmdev.tools.arguments.exception.InvalidFormatException;
 public class ArgumentsTest {
 	
 	@Test
-	public void MultiPropertiesTest() throws ArgumentPatternException{
+	public void multiPropertiesTest() throws ArgumentPatternException{
 
 		ArgumentPattern pattern = new ArgumentPattern("command");
 		pattern.booleanArgument("b")
